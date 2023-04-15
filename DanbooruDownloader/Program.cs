@@ -1,6 +1,8 @@
 ﻿using DanbooruDownloader.Commands;
+using DanbooruDownloader.Utilities;
 using Microsoft.Extensions.CommandLineUtils;
 using Microsoft.Extensions.PlatformAbstractions;
+using Newtonsoft.Json.Linq;
 using System;
 
 namespace DanbooruDownloader
