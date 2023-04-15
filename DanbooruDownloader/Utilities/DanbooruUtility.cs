@@ -7,6 +7,8 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
+using CloudflareSolverRe;
+
 namespace DanbooruDownloader.Utilities
 {
     public static class DanbooruUtility
@@ -20,10 +22,17 @@ namespace DanbooruDownloader.Utilities
 
         public static async Task<JObject[]> GetPosts(long startId, string username, string apikey)
         {
-            using (HttpClient client = new HttpClient())
+            string url = GetPostsUrl(startId, username, apikey);
+            var target = new Uri(url);
+            var handler = new ClearanceHandler
             {
-                string url = GetPostsUrl(startId, username, apikey);
-                string jsonString = await client.GetStringAsync(url);
+                MaxTries = 3,
+                ClearanceDelay = 3000
+            };
+
+            using (HttpClient client = new HttpClient(handler))
+            {
+                string jsonString = await client.GetStringAsync(target);
 
                 JArray jsonArray = JArray.Parse(jsonString);
 

@@ -24,6 +24,7 @@ namespace DanbooruDownloader
                 command.HelpOption("-h|--help");
 
                 var outputPathArgument = command.Argument("path", "Output path.", false);
+                var parallelDownloadsOption = command.Option("-p|--parallel-downloads <value>", "Number of images to download simultaneously. Default is 5.", CommandOptionType.SingleValue);
                 var startIdOption = command.Option("-s|--start-id <id>", "Starting Id. Default is 1.", CommandOptionType.SingleValue);
                 var endIdOption = command.Option("-e|--end-id <id>", "Ending Id. Default is 0 (unlimited).).", CommandOptionType.SingleValue);
                 var ignoreHashCheckOption = command.Option("-i|--ignore-hash-check", "Ignore hash check.", CommandOptionType.NoValue);
@@ -34,10 +35,17 @@ namespace DanbooruDownloader
                 command.OnExecute(() =>
                 {
                     string path = outputPathArgument.Value;
+                    int parallelDownloads = 5;
                     long startId = 1;
                     long endId = 0;
                     bool ignoreHashCheck = ignoreHashCheckOption.HasValue();
                     bool includeDeleted = includeDeletedOption.HasValue();
+
+                    if (parallelDownloadsOption.HasValue() && !int.TryParse(parallelDownloadsOption.Value(), out parallelDownloads))
+                    {
+                        Console.WriteLine("Invalid number for parallel downloads.");
+                        return -2;
+                    }
 
                     if (startIdOption.HasValue() && !long.TryParse(startIdOption.Value(), out startId))
                     {
@@ -60,7 +68,7 @@ namespace DanbooruDownloader
                     var username = usernameOption.Value();
                     var apikey = apikeyOption.Value();
 
-                    DumpCommand.Run(path, startId, endId, ignoreHashCheck, includeDeleted, username, apikey).Wait();
+                    DumpCommand.Run(path, parallelDownloads, startId, endId, ignoreHashCheck, includeDeleted, username, apikey).Wait();
 
                     return 0;
                 });
